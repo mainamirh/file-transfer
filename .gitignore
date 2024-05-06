@@ -1,0 +1,5 @@
+# Ignore all contents of the savedByServer folder
+savedByServer/*
+
+# Allow the text-1.txt file
+!savedByServer/text-1.txt

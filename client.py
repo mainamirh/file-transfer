@@ -10,6 +10,7 @@ def establishConnection():
     global client_socket
     serverHost = "localhost"
     serverPort = 12000
+    # params ipv4, tcp
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     print(f"Connecting to {serverHost}:{serverPort} ...")
@@ -52,7 +53,7 @@ def readSelectedFile(selectedFile):
 def responseFromServer():
     global client_socket
 
-    client_socket.settimeout(20)
+    client_socket.settimeout(60)  # Disconnect after being idle for 60 seconds
 
     try:
         while True:
@@ -89,6 +90,11 @@ def disconnect():
     client_socket.close()  # Close connection
     time.sleep(1)
     exit(1)  # Exit the program
+
+
+def sendExitMessage():
+    global client_socket
+    client_socket.send("exit".encode())
 
 
 # Function to clear the screen
@@ -135,6 +141,7 @@ while True:
                 sendFileToServer(selected_file, file_data)
 
         elif choice == len(files) + 1:
+            sendExitMessage()
             disconnect()
             break
         else:

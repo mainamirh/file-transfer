@@ -24,21 +24,28 @@ def runService(connection_socket, filename, filedata):
 
 
 def handle_client(connection_socket, client_address):
-    connection_socket.settimeout(20)  # Set timeout for the connection
+    print(f"Client {client_address} connected.")
+
+    connection_socket.settimeout(60)  # Disconnect after being idle for 60 seconds
 
     try:
         while True:
-            filename, filedata = connection_socket.recv(1024).split(
-                b"\n", 1
-            )  # Receive file
+            message = connection_socket.recv(1024)
 
-            print("Connection from:", client_address)
-            time.sleep(1)
-            connection_socket.send(
-                "\n   📡 Message from Server: 📥 File received successfully.".encode()
-            )
+            if message.decode() == "exit":
+                connection_socket.close()
+                print(f"{connection_socket} Disconnected by Client {client_address}")
+                break
 
-            runService(connection_socket, filename.decode(), filedata)
+            else:
+                filename, filedata = message.split(b"\n", 1)  # Receive file
+
+                time.sleep(1)
+                connection_socket.send(
+                    "\n   📡 Message from Server: 📥 File received successfully.".encode()
+                )
+
+                runService(connection_socket, filename.decode(), filedata)
 
     except ValueError:
         print(f"{client_address} disconnected.")
@@ -51,6 +58,7 @@ def handle_client(connection_socket, client_address):
 # Configure server
 host = "localhost"
 port = 12000
+# params ipv4, tcp
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind((host, port))
 server_socket.listen(1)
